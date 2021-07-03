@@ -6,20 +6,19 @@ SUBPROJECTS       += plotutils
 PLOTUTILS_VERSION := 2.6
 DEB_PLOTUTILS_V   ?= $(PLOTUTILS_VERSION)
 
-plotutils-setup: setup file-setup
+plotutils-setup: setup
 	wget -q -nc -P $(BUILD_SOURCE) https://ftpmirror.gnu.org/plotutils/plotutils-$(PLOTUTILS_VERSION).tar.gz{,.sig}
 	$(call PGP_VERIFY,plotutils-$(PLOTUTILS_VERSION).tar.gz)
 	$(call EXTRACT_TAR,plotutils-$(PLOTUTILS_VERSION).tar.gz,plotutils-$(PLOTUTILS_VERSION),plotutils)
-	cp -a $(BUILD_WORK)/file/config.sub $(BUILD_WORK)/plotutils
+	cp -a $(BUILD_MISC)/config.sub $(BUILD_WORK)/plotutils
 
 ifneq ($(wildcard $(BUILD_WORK)/plotutils/.build_complete),)
 plotutils:
 	@echo "Using previously built plotutils."
 else
-plotutils: plotutils-setup libx11 libxt libXaw libsm libice
+plotutils: plotutils-setup libx11 libxt libxaw libsm libice
 	cd $(BUILD_WORK)/plotutils && ./configure -C \
-		--host=$(GNU_HOST_TRIPLE) \
-		--prefix=/usr
+		$(DEFAULT_CONFIGURE_FLAGS)
 	+$(MAKE) -C $(BUILD_WORK)/plotutils
 	+$(MAKE) -C $(BUILD_WORK)/plotutils install \
 		DESTDIR=$(BUILD_STAGE)/plotutils
